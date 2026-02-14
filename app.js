@@ -20,8 +20,13 @@ const PORT = process.env.PORT || 3000;
 
 // CORS: permitir solo mismo origen (frontend servido por Express)
 const frontendUrl = process.env.FRONTEND_URL || `http://localhost:${PORT}`;
+
+// En producción (Render), usar HTTPS
+const isProduction = process.env.NODE_ENV === 'production';
+const corsOrigin = isProduction ? process.env.FRONTEND_URL : frontendUrl;
+
 app.use(cors({
-  origin: frontendUrl,
+  origin: corsOrigin,
   credentials: true,
 }));
 
