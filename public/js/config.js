@@ -12,8 +12,7 @@ const API_BASE = window.location.origin + '/api';
 // Configuración de desarrollo/producción
 const IS_PRODUCTION = window.location.hostname !== 'localhost';
 
-module.exports = {
-  USE_API,
-  API_BASE,
-  IS_PRODUCTION
-};
+// Hacer disponible globalmente para el navegador
+window.USE_API = USE_API;
+window.API_BASE = API_BASE;
+window.IS_PRODUCTION = IS_PRODUCTION;
