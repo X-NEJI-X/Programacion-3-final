@@ -12,6 +12,15 @@ const register = async (req, res, next) => {
     if (!nombre || !email || !password) {
       return res.status(400).json({ error: 'Faltan campos obligatorios: nombre, email, password.' });
     }
+
+    // Verificar si DATABASE_URL está configurada
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({ 
+        error: 'Servicio no disponible. Base de datos no configurada.',
+        code: 'NO_DATABASE'
+      });
+    }
+
     const existing = await User.findByEmail(email);
     if (existing) {
       return res.status(400).json({ error: 'El email ya está registrado.' });
@@ -20,7 +29,7 @@ const register = async (req, res, next) => {
     const user = await User.create(nombre, email, hash, rol || 'usuario');
     const token = jwt.sign(
       { userId: user.id, rol: user.rol },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '7d' }
     );
     
@@ -33,12 +42,20 @@ const register = async (req, res, next) => {
   } catch (err) {
     console.error('Error en registro:', {
       message: err.message,
-      stack: err.stack,
       code: err.code,
       detail: err.detail,
       hint: err.hint,
       where: err.where,
     });
+    
+    // Manejar errores de BD específicos
+    if (err.code === 'ECONNREFUSED') {
+      return res.status(503).json({ 
+        error: 'Base de datos no disponible. Intente más tarde.',
+        code: 'DATABASE_UNAVAILABLE'
+      });
+    }
+    
     next(err);
   }
 };
@@ -46,6 +63,15 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    
+    // Verificar si DATABASE_URL está configurada
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({ 
+        error: 'Servicio no disponible. Base de datos no configurada.',
+        code: 'NO_DATABASE'
+      });
+    }
+    
     const user = await User.findByEmail(email);
     if (!user) {
       return res.status(401).json({ error: 'Credenciales incorrectas.' });
@@ -56,7 +82,7 @@ const login = async (req, res, next) => {
     }
     const token = jwt.sign(
       { userId: user.id, rol: user.rol },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'fallback_secret',
       { expiresIn: '7d' }
     );
     res.json({
@@ -67,24 +93,47 @@ const login = async (req, res, next) => {
   } catch (err) {
     console.error('Error en login:', {
       message: err.message,
-      stack: err.stack,
       code: err.code,
       detail: err.detail,
       hint: err.hint,
       where: err.where,
     });
+    
+    // Manejar errores de BD específicos
+    if (err.code === 'ECONNREFUSED') {
+      return res.status(503).json({ 
+        error: 'Base de datos no disponible. Intente más tarde.',
+        code: 'DATABASE_UNAVAILABLE'
+      });
+    }
+    
     next(err);
   }
 };
 
 const me = async (req, res, next) => {
   try {
+    // Verificar si DATABASE_URL está configurada
+    if (!process.env.DATABASE_URL) {
+      return res.status(503).json({ 
+        error: 'Servicio no disponible. Base de datos no configurada.',
+        code: 'NO_DATABASE'
+      });
+    }
+    
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado.' });
     }
     res.json({ user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol } });
   } catch (err) {
+    // Manejar errores de BD específicos
+    if (err.code === 'ECONNREFUSED') {
+      return res.status(503).json({ 
+        error: 'Base de datos no disponible. Intente más tarde.',
+        code: 'DATABASE_UNAVAILABLE'
+      });
+    }
     next(err);
   }
 };
