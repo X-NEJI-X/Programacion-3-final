@@ -19,8 +19,11 @@ async function seedIfNeeded() {
   }
 
   try {
-    // Testear conexión básica
-    await pool.query('SELECT 1');
+    // Testear conexión básica con timeout
+    const result = await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout BD')), 5000))
+    ]);
     console.log('✅ Seed: conexión a BD exitosa.');
     
     // Verificar si ya hay productos
