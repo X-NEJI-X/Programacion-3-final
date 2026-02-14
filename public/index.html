@@ -46,6 +46,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/js/config.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/app.js"></script>
   <script>
@@ -200,8 +201,15 @@
         }
 
         try {
-          // Cargar TODAS las imágenes disponibles con nombres lógicos
-          allProducts = [
+          // Cargar productos desde API o datos locales
+          if (window.USE_API) {
+            console.log('🔄 Cargando productos desde API...');
+            allProducts = await products.getAll();
+            console.log(`✅ ${allProducts.length} productos cargados desde API`);
+          } else {
+            console.log('📦 Cargando productos desde datos locales...');
+            // Cargar TODAS las imágenes disponibles con nombres lógicos
+            allProducts = [
             // ROCK CLÁSICO
             {id: 1, nombre: "The Prodigy Experience", artista: "The Prodigy", genero: "Electrónica", anio: "1992", num_canciones: "12", info_relevante: "Portada con fondo negro y cara con rayos láser de colores", precio: 28.99, imagen: "/images/albums/R-26193-1313909388.jpg", codigo: "PRD001"},
             {id: 2, nombre: "The Fat of the Land", artista: "The Prodigy", genero: "Electrónica", anio: "1997", num_canciones: "10", info_relevante: "Fondo negro con cangrejo rojo/anaranjado", precio: 29.99, imagen: "/images/albums/R-26194-1592430767-5429.jpg", codigo: "PRD002"},
@@ -383,6 +391,8 @@
             {id: 79, nombre: "My Beautiful Dark Twisted", artista: "Kanye West", genero: "Hip-Hop", anio: "2010", num_canciones: "13", info_relevante: "Hip-hop maximalista", precio: 33.99, imagen: "/images/albums/R-377569-1401732089-7983.jpg", codigo: "KW005"},
             {id: 80, nombre: "Watch the Throne", artista: "Jay-Z & Kanye West", genero: "Hip-Hop", anio: "2011", num_canciones: "12", info_relevante: "Colaboración épica", precio: 35.99, imagen: "/images/albums/R-379025-1384964856-3772.jpg", codigo: "JK001"}
           ];
+          console.log('📦 Cargados productos desde datos locales');
+          }
           loading.classList.add('hidden');
 
           if (!allProducts.length) {
