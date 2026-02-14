@@ -2,7 +2,7 @@
  * Cliente API: base URL, token en localStorage, helpers fetch.
  */
 
-const API_BASE = window.location.origin + '/api';
+const API_BASE = window.API_BASE || (window.location.origin + '/api');
 
 function getToken() {
   return localStorage.getItem('token');
@@ -78,3 +78,10 @@ const payments = {
   confirm: (payment_intent_id) =>
     api('/payments/confirm', { method: 'POST', body: { payment_intent_id } }),
 };
+
+window.api = { auth, products, cart, orders, payments };
+window.auth = auth;
+window.products = products;
+window.cart = cart;
+window.orders = orders;
+window.payments = payments;
