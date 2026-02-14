@@ -26,11 +26,20 @@ async function api(endpoint, options = {}) {
     config.body = JSON.stringify(config.body);
   }
   const res = await fetch(url, config);
-  const data = await res.json().catch(() => ({}));
+  const rawText = await res.text().catch(() => '');
+  const data = (() => {
+    if (!rawText) return {};
+    try {
+      return JSON.parse(rawText);
+    } catch {
+      return {};
+    }
+  })();
   if (!res.ok) {
-    const err = new Error(data.error || data.errors?.[0]?.msg || 'Error en la solicitud');
+    const err = new Error(data?.error || data?.errors?.[0]?.msg || `Error HTTP ${res.status}`);
     err.status = res.status;
     err.data = data;
+    err.raw = rawText;
     throw err;
   }
   return data;

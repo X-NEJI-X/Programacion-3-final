@@ -63,6 +63,7 @@
         password: form.password.value,
         rol: form.rol.value,
       };
+      console.log('[REGISTER] payload =>', payload);
       btn.disabled = true;
       showLoading('Creando cuenta...');
       try {
@@ -72,9 +73,16 @@
         showSuccess('Cuenta creada', 'Redirigiendo...');
         setTimeout(() => (window.location.href = '/index.html'), 1000);
       } catch (err) {
+        console.error('[REGISTER] error =>', {
+          message: err?.message,
+          status: err?.status,
+          data: err?.data,
+          raw: err?.raw,
+        });
         closeLoading();
         btn.disabled = false;
-        showError('Error al registrarse', err.message);
+        const details = err?.status ? ` (HTTP ${err.status})` : '';
+        showError('Error al registrarse', (err?.message || 'Error') + details);
       }
     });
   </script>
