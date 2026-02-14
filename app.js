@@ -8,8 +8,6 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 
-const { seedIfNeeded } = require('./seed_render_free');
-
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -57,14 +55,6 @@ app.use(errorHandler);
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-  
-  // Seed automático solo en producción (Render Free) - sin await para no bloquear
-  if (process.env.NODE_ENV === 'production') {
-    console.log('🌱 Iniciando seed en producción...');
-    seedIfNeeded().catch(err => {
-      console.error('❌ Seed falló (app continúa):', err.message);
-    });
-  }
 });
 
 module.exports = app;
