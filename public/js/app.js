@@ -76,24 +76,43 @@ const cart = {
     if (!requireAuth()) return;
     
     try {
-      const products = {
-        getAll: () => api('/products'),
-        getByCode: (codigo) => api(`/products/${encodeURIComponent(codigo)}`),
-        create: (body) => api('/products', { method: 'POST', body }),
-        search: (query) => api(`/products/search?q=${encodeURIComponent(query)}`)
-      };
-      throw new Error('Producto no encontrado');
-      
-      const existingItem = this.items.find(item => item.id === productId);
-      if (existingItem) {
-        existingItem.quantity += quantity;
-      } else {
-        this.items.push({ ...product, quantity });
+      const data = await cart.getCart();
+      loading.classList.add('hidden');
+      if (!data.items || !data.items.length) {
+        cartItems.innerHTML = '<p class="text-white/70 text-center py-8">Tu carrito está vacío.</p>';
+        cartTotal.textContent = '$0.00';
+        return;
       }
+      content.classList.remove('hidden');
+      empty.classList.add('hidden');
       
-      this.saveToStorage();
-      showSuccess('Añadido al carrito', `${product.nombre} (${quantity})`);
+      cartItems.innerHTML = data.items.map(item => `
+        <div class="glass-card p-4 flex flex-wrap items-center justify-between gap-4 animate__animated animate__fadeInUp" style="animation-delay: ${i * 0.03}s">
+          <div class="flex-1">
+            <h4 class="font-semibold">${escapeHtml(item.nombre)}</h4>
+            <p class="text-white/70 text-sm">${escapeHtml(item.artista)}</p>
+            <p class="text-emerald-400 font-bold">$${Number(item.precio).toFixed(2)} u.</p>
+            <p class="text-white/60 text-sm">Código: ${escapeHtml(item.codigo)}</p>
+            <p class="text-white/60 text-sm">Cant: ${item.cantidad}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-white/90">Cant:</span>
+            <button type="button" onclick="cart.updateQuantity(${item.id}, ${item.cantidad - 1})" class="px-2 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white">-</button>
+            <span class="text-white/90 font-semibold px-3">${item.cantidad}</span>
+            <button type="button" onclick="cart.updateQuantity(${item.id}, ${item.cantidad + 1})" class="px-2 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white">+</button>
+            <button type="button" onclick="cart.remove(${item.id})" class="px-3 py-2 rounded-lg bg-red-500/80 hover:bg-red-500 text-white">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      cartTotal.textContent = `$${data.items.reduce((total, item) => total + (item.precio * item.cantidad), 0).toFixed(2)}`;
+      
+      lucide.createIcons();
     } catch (error) {
+      loading.classList.add('hidden');
+      empty.classList.remove('hidden');
       showError('Error', error.message);
     }
   },

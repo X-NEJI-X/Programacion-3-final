@@ -5,12 +5,11 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
-const getMyCart = async (req, res, next) => {
+const getCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const items = await Cart.getCartByUserId(userId);
-    const total = items.reduce((sum, item) => sum + Number(item.precio) * Number(item.cantidad), 0);
-    res.json({ items, total: Math.round(total * 100) / 100 });
+    const cartItems = await Cart.getCartByUserId(userId);
+    res.json(cartItems);
   } catch (err) {
     next(err);
   }
@@ -19,15 +18,38 @@ const getMyCart = async (req, res, next) => {
 const addItem = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { product_id, cantidad } = req.body;
-    const product = await Product.findById(product_id);
-    if (!product) {
-      return res.status(404).json({ error: 'Producto no encontrado.' });
+    const { product_id, cantidad = 1 } = req.body;
+    await Cart.addItem(userId, product_id, cantidad);
+    res.status(201).json({ message: 'Producto añadido al carrito.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateQuantity = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { cartItemId, cantidad } = req.body;
+    await Cart.updateQuantity(userId, cartItemId, cantidad);
+    res.json({ message: 'Cantidad actualizada.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const removeItem = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { productId } = req.params;
+    const cartItems = await Cart.getCartByUserId(userId);
+    const itemToRemove = cartItems.find(item => item.product_id === parseInt(productId));
+    
+    if (!itemToRemove) {
+      return res.status(404).json({ error: 'Producto no encontrado en el carrito.' });
     }
-    const added = await Cart.addItem(userId, product_id, cantidad || 1);
-    const items = await Cart.getCartByUserId(userId);
-    const total = items.reduce((sum, item) => sum + Number(item.precio) * Number(item.cantidad), 0);
-    res.status(201).json({ items, total: Math.round(total * 100) / 100 });
+    
+    await Cart.removeItem(userId, itemToRemove.id);
+    res.json({ message: 'Producto eliminado del carrito.' });
   } catch (err) {
     next(err);
   }
@@ -37,14 +59,16 @@ const clearCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
     await Cart.clearCart(userId);
-    res.json({ message: 'Carrito vaciado correctamente.', items: [], total: 0 });
+    res.json({ message: 'Carrito vaciado.' });
   } catch (err) {
     next(err);
   }
 };
 
 module.exports = {
-  getMyCart,
+  getCart,
   addItem,
-  clearCart,
+  updateQuantity,
+  removeItem,
+  clearCart
 };

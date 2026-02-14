@@ -17,6 +17,19 @@ const getCartByUserId = async (userId) => {
   return result.rows;
 };
 
+const getCart = async (userId) => {
+  const result = await pool.query(
+    `SELECT c.id, c.user_id, c.product_id, c.cantidad, c.created_at,
+            p.codigo, p.nombre, p.precio, p.descripcion
+     FROM cart c
+     JOIN products p ON p.id = c.product_id
+     WHERE c.user_id = $1
+     ORDER BY c.created_at DESC`,
+    [userId]
+  );
+  return result.rows;
+};
+
 const addItem = async (userId, productId, cantidad = 1) => {
   const result = await pool.query(
     `INSERT INTO cart (user_id, product_id, cantidad)

@@ -5,12 +5,13 @@
 const express = require('express');
 const cartController = require('../controllers/cartController');
 const { verifyToken } = require('../middlewares/authMiddleware');
-const { addToCartRules, validate } = require('../validators/cartValidator');
 
 const router = express.Router();
 
-router.get('/', verifyToken, cartController.getMyCart);
-router.post('/add', verifyToken, addToCartRules, validate, cartController.addItem);
-router.delete('/clear', verifyToken, cartController.clearCart);
+router.get('/', verifyToken, cartController.getCart);
+router.post('/add', verifyToken, cartController.addItem);
+router.put('/:cartItemId', verifyToken, cartController.updateQuantity);
+router.delete('/:productId', verifyToken, cartController.removeItem);
+router.delete('/', verifyToken, cartController.clearCart);
 
 module.exports = router;
