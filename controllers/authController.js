@@ -17,12 +17,15 @@ const register = async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create(nombre, email, hash, rol || 'usuario');
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    
+    console.log('Usuario creado:', { id: user.id, nombre: user.nombre, email: user.email });
     res.status(201).json({
       message: 'Usuario registrado correctamente.',
       user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol },
-      token,
+      token
     });
   } catch (err) {
+    console.error('Error en registro:', err);
     next(err);
   }
 };
