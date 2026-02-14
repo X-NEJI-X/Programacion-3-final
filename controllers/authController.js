@@ -13,14 +13,6 @@ const register = async (req, res, next) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios: nombre, email, password.' });
     }
 
-    // Verificar si DATABASE_URL está configurada
-    if (!process.env.DATABASE_URL) {
-      return res.status(503).json({ 
-        error: 'Servicio no disponible. Base de datos no configurada.',
-        code: 'NO_DATABASE'
-      });
-    }
-
     const existing = await User.findByEmail(email);
     if (existing) {
       return res.status(400).json({ error: 'El email ya está registrado.' });
@@ -49,7 +41,7 @@ const register = async (req, res, next) => {
     });
     
     // Manejar errores de BD específicos
-    if (err.code === 'ECONNREFUSED') {
+    if (err.message === 'DATABASE_UNAVAILABLE' || err.code === 'ECONNREFUSED') {
       return res.status(503).json({ 
         error: 'Base de datos no disponible. Intente más tarde.',
         code: 'DATABASE_UNAVAILABLE'

@@ -5,22 +5,25 @@
 const pool = require('../config/db');
 
 const findByEmail = async (email) => {
-  const result = await pool.query(
-    'SELECT id, nombre, email, password, rol, created_at FROM users WHERE email = $1',
-    [email]
-  );
+  if (!pool) {
+    throw new Error('DATABASE_UNAVAILABLE');
+  }
+  const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
   return result.rows[0];
 };
 
 const findById = async (id) => {
-  const result = await pool.query(
-    'SELECT id, nombre, email, rol, created_at FROM users WHERE id = $1',
-    [id]
-  );
+  if (!pool) {
+    throw new Error('DATABASE_UNAVAILABLE');
+  }
+  const result = await pool.query('SELECT id, nombre, email, rol, created_at FROM users WHERE id = $1', [id]);
   return result.rows[0];
 };
 
 const create = async (nombre, email, passwordHash, rol) => {
+  if (!pool) {
+    throw new Error('DATABASE_UNAVAILABLE');
+  }
   const result = await pool.query(
     `INSERT INTO users (nombre, email, password, rol)
      VALUES ($1, $2, $3, $4)
