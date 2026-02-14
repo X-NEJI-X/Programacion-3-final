@@ -10,6 +10,9 @@ const { JWT_SECRET } = require('../middlewares/authMiddleware');
 const register = async (req, res, next) => {
   try {
     const { nombre, email, password, rol } = req.body;
+    if (!nombre || !email || !password) {
+      return res.status(400).json({ error: 'Faltan campos obligatorios: nombre, email, password.' });
+    }
     const existing = await User.findByEmail(email);
     if (existing) {
       return res.status(400).json({ error: 'El email ya está registrado.' });
