@@ -28,4 +28,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
+// Log para depuración
+console.log('DATABASE_URL configurada:', process.env.DATABASE_URL ? 'OK' : 'FALTA');
+
 module.exports = pool;

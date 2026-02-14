@@ -5,7 +5,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { JWT_SECRET } = require('../middlewares/authMiddleware');
 
 const register = async (req, res, next) => {
   try {
@@ -19,7 +18,11 @@ const register = async (req, res, next) => {
     }
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create(nombre, email, hash, rol || 'usuario');
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { userId: user.id, rol: user.rol },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
     
     console.log('Usuario creado:', { id: user.id, nombre: user.nombre, email: user.email });
     res.status(201).json({
@@ -28,7 +31,14 @@ const register = async (req, res, next) => {
       token
     });
   } catch (err) {
-    console.error('Error en registro:', err);
+    console.error('Error en registro:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code,
+      detail: err.detail,
+      hint: err.hint,
+      where: err.where,
+    });
     next(err);
   }
 };
@@ -44,13 +54,25 @@ const login = async (req, res, next) => {
     if (!valid) {
       return res.status(401).json({ error: 'Credenciales incorrectas.' });
     }
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { userId: user.id, rol: user.rol },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
     res.json({
       message: 'Login correcto.',
       user: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol },
       token,
     });
   } catch (err) {
+    console.error('Error en login:', {
+      message: err.message,
+      stack: err.stack,
+      code: err.code,
+      detail: err.detail,
+      hint: err.hint,
+      where: err.where,
+    });
     next(err);
   }
 };

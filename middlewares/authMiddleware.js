@@ -19,11 +19,8 @@ const verifyToken = async (req, res, next) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId);
-    if (!user) {
-      return res.status(401).json({ error: 'Usuario no encontrado.' });
-    }
-    req.user = { id: user.id, email: user.email, rol: user.rol };
+    // Usar los datos del token directamente para evitar consulta extra
+    req.user = { id: decoded.userId, rol: decoded.rol };
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
