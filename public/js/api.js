@@ -79,7 +79,7 @@ const payments = {
     api('/payments/confirm', { method: 'POST', body: { payment_intent_id } }),
 };
 
-window.api = { auth, products, cart, orders, payments };
+window.api = api;
 window.auth = auth;
 window.products = products;
 window.cart = cart;
