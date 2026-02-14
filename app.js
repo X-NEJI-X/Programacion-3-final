@@ -8,6 +8,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 
+const { seedIfNeeded } = require('./seed_render_free');
+
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
@@ -53,8 +55,11 @@ app.get('/', (req, res) => {
 app.use(errorHandler);
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  
+  // Seed automático solo en producción (Render Free)
+  await seedIfNeeded();
 });
 
 module.exports = app;
