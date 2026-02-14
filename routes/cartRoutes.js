@@ -11,7 +11,7 @@ const router = express.Router();
 router.get('/', verifyToken, cartController.getCart);
 router.post('/add', verifyToken, cartController.addItem);
 router.put('/:cartItemId', verifyToken, cartController.updateQuantity);
-router.delete('/:productId', verifyToken, cartController.removeItem);
+router.delete('/product/:productId', verifyToken, cartController.removeItem);
 router.delete('/', verifyToken, cartController.clearCart);
 
 module.exports = router;
