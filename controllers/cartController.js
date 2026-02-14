@@ -3,7 +3,6 @@
  */
 
 const Cart = require('../models/Cart');
-const Product = require('../models/Product');
 
 const getCart = async (req, res, next) => {
   try {
@@ -29,9 +28,14 @@ const addItem = async (req, res, next) => {
 const updateQuantity = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const { cartItemId, cantidad } = req.body;
-    await Cart.updateQuantity(userId, cartItemId, cantidad);
-    res.json({ message: 'Cantidad actualizada.' });
+    const { cartItemId } = req.params;
+    const { cantidad } = req.body;
+    const qty = Number(cantidad);
+    if (!Number.isFinite(qty) || qty < 1) {
+      return res.status(400).json({ error: 'Cantidad inválida.' });
+    }
+    const updated = await Cart.updateQuantity(userId, cartItemId, qty);
+    res.json({ message: 'Cantidad actualizada.', item: updated });
   } catch (err) {
     next(err);
   }

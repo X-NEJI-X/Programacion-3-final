@@ -51,10 +51,9 @@ const products = {
 const cart = {
   get: () => api('/cart'),
   add: (product_id, cantidad = 1) => api('/cart/add', { method: 'POST', body: { product_id, cantidad } }),
-  clear: () => api('/cart/clear', { method: 'DELETE' }),
+  clear: () => api('/cart', { method: 'DELETE' }),
   remove: (productId) => api(`/cart/${productId}`, { method: 'DELETE' }),
   updateQuantity: (cartItemId, cantidad) => api(`/cart/${cartItemId}`, { method: 'PUT', body: { cantidad } }),
-  getCart: () => api('/cart')
 };
 
 const orders = {
