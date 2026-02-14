@@ -24,8 +24,8 @@ pool.on('error', (err) => {
 
 // Validación temprana de DATABASE_URL
 if (!process.env.DATABASE_URL) {
-  console.error('DATABASE_URL no está definida. El servidor no podrá conectar a la base de datos.');
-  process.exit(1);
+  console.error('⚠️ DATABASE_URL no está definida. La app funcionará pero las operaciones de BD fallarán.');
+  // No detener la app, solo advertir
 }
 
 // Log para depuración
