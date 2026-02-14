@@ -12,7 +12,17 @@ async function seedIfNeeded() {
     return;
   }
 
+  // Verificar que DATABASE_URL exista y sea válida
+  if (!process.env.DATABASE_URL) {
+    console.log('⚠️ Seed: DATABASE_URL no configurada, omitiendo inserción.');
+    return;
+  }
+
   try {
+    // Testear conexión básica
+    await pool.query('SELECT 1');
+    console.log('✅ Seed: conexión a BD exitosa.');
+    
     // Verificar si ya hay productos
     const countResult = await pool.query('SELECT COUNT(*) as total FROM products');
     const total = parseInt(countResult.rows[0].total, 10);
@@ -41,7 +51,7 @@ async function seedIfNeeded() {
     for (const producto of productos) {
       await pool.query(
         `INSERT INTO products (codigo, nombre, artista, genero, anio, num_canciones, info_relevante, precio, imagen, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
          ON CONFLICT (codigo) DO NOTHING`,
         [producto.codigo, producto.nombre, producto.artista, producto.genero, producto.anio, producto.num_canciones, producto.info_relevante, producto.precio, producto.imagen]
       );
@@ -56,6 +66,7 @@ async function seedIfNeeded() {
       detail: err.detail,
       hint: err.hint,
     });
+    // No detener la app si el seed falla
   }
 }
 
