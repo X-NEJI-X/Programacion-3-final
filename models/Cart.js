@@ -66,6 +66,7 @@ const clearCart = async (userId) => {
 
 module.exports = {
   getCartByUserId,
+  getCart,
   addItem,
   updateQuantity,
   removeItem,

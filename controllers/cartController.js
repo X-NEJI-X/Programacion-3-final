@@ -7,7 +7,7 @@ const Cart = require('../models/Cart');
 const getCart = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const cartItems = await Cart.getCartByUserId(userId);
+    const cartItems = await Cart.getCart(userId);
     res.json(cartItems);
   } catch (err) {
     next(err);
@@ -45,15 +45,13 @@ const removeItem = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { productId } = req.params;
-    const cartItems = await Cart.getCartByUserId(userId);
-    const itemToRemove = cartItems.find(item => item.product_id === parseInt(productId));
-    
-    if (!itemToRemove) {
-      return res.status(404).json({ error: 'Producto no encontrado en el carrito.' });
+    const cartItems = await Cart.getCart(userId);
+    const item = cartItems.find(i => i.product_id == productId);
+    if (!item) {
+      return res.status(404).json({ error: 'Ítem no encontrado en el carrito.' });
     }
-    
-    await Cart.removeItem(userId, itemToRemove.id);
-    res.json({ message: 'Producto eliminado del carrito.' });
+    await Cart.removeItem(userId, item.id);
+    res.json({ message: 'Ítem eliminado del carrito.' });
   } catch (err) {
     next(err);
   }
