@@ -14,7 +14,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 const createCheckoutSession = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const cartItems = await Cart.getCartByUserId(userId);
+    const cartItems = await Cart.getCart(userId);
     if (!cartItems.length) {
       return res.status(400).json({ error: 'El carrito está vacío.' });
     }
@@ -58,7 +58,7 @@ const createCheckoutSession = async (req, res, next) => {
 const confirmPayment = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const cartItems = await Cart.getCartByUserId(userId);
+    const cartItems = await Cart.getCart(userId);
     if (!cartItems.length) {
       return res.status(400).json({ error: 'El carrito está vacío.' });
     }
